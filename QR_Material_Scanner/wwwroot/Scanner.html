@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+
+    <input type="text" id="scanner" placeholder="scanner">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv5.min.js"></script>
+   
+
+    <script type="text/javascript">
+      
+        let input = document.getElementById("scanner");
+        var uuid = uuid.version();
+        alert(uuid);
+        input.textContent = uuid;
+    </script>
+
+</body>
+
+
+</html>

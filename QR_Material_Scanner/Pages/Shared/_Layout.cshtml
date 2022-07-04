@@ -1,0 +1,384 @@
+﻿@inject SignInManager<ApplicationUser> signInManager;
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    @*<meta name="viewport" content="width=device-width" />
+            <title>@ViewBag.Title</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="theme-color" content="#000000">
+        <title>QR Code Material Scanner</title>
+        <!--<link rel="icon" type="image/png" href="images/favicon.png" sizes="32x32">-->
+        <link rel="apple-touch-icon" sizes="180x180" href="~/images/icons/icon-192x192.png">
+        <!--<link href="css/style.css" rel="stylesheet" />-->
+        <link rel="stylesheet" href="~/css/style.css">
+        <link rel="manifest" href="~/manifest.json">*@
+
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>HTML PWA</title>
+    <meta name="description" content="Qr Material Scanner PWA">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Disable tap highlight on IE -->
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <!-- Progressive Web App -->
+    <meta name="theme-color" content="#f5f8fa">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="~/images/icons/icon-192x192.png">
+    <link rel="icon" sizes="512x512" href="~/images/icons/icon-512x512.png">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="ATIPL">
+    <link rel="apple-touch-icon-precomposed" href="~/images/icons/icon-192x192.png">
+    @*<link rel="mask-icon" href="images/icons/desktop/safari-pinned-tab.svg" color="#5bbad5">*@
+
+    <!-- Tile color for Windows -->
+    <meta name="msapplication-TileImage" content="~/images/icons/icon-152x152.png">
+    <meta name="msapplication-TileColor" content="#ffc40d">
+
+    <!-- Place favicon.ico in the root directory -->
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/icons/icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/images/icons/icon-72x72.png">
+   
+
+    <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+    <!--
+    <link rel="canonical" href="http://www.example.com/">
+    -->
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="manifest" href="~/manifest.json">
+</head>
+<body>
+    <div>
+        <!-- loader -->
+        <div id="loader">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+        <!-- * loader -->
+
+
+
+        @RenderBody()
+
+
+        <!-- App Bottom Menu -->
+        <div class="appBottomMenu">
+            <a href="/home" class="item active">
+                <div class="col">
+                    <ion-icon name="home-outline"></ion-icon>
+                </div>
+            </a>
+            <a href="/Goods_Receipts" class="item">
+                <div class="col">
+                    <ion-icon name="cube-outline"></ion-icon>
+                </div>
+            </a>
+            <a href="/delivery" class="item">
+                <div class="col">
+                    <ion-icon name="paper-plane-outline"></ion-icon>
+                    @*<span class="badge badge-danger">5</span>*@
+                </div>
+            </a>
+            <a href="#" class="item">
+                <div class="col">
+                    <ion-icon name="layers-outline"></ion-icon>
+                </div>
+            </a>
+            <a href="javascript:;" class="item" data-toggle="modal" data-target="#sidebarPanel">
+                <div class="col">
+                    <ion-icon name="menu-outline"></ion-icon>
+                </div>
+            </a>
+        </div>
+        <!-- * App Bottom Menu -->
+        <!-- App Sidebar -->
+        <div class="modal fade panelbox panelbox-left" id="sidebarPanel" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body p-0">
+
+                        <!-- profile box -->
+                        <div class="profileBox">
+                            <div class="image-wrapper">
+                                <img src="~/images/sample/avatar/avatar1.jpg" alt="image" class="imaged rounded">
+                            </div>
+                            <div class="in">
+                                <strong id="sUserName"></strong>
+
+                                <div class="text-muted">
+                                    <ion-icon name="location"></ion-icon>
+                   
+                                    <small id="slocation"></small>
+                                    @*<h5 id="slocation"></h5>*@
+                                    @*<strong id="slocation"></strong>*@
+                                </div>
+                            
+                            </div>
+                            <a href="javascript:;" class="close-sidebar-button" data-dismiss="modal">
+                                <ion-icon name="close"></ion-icon>
+                            </a>
+                        </div>
+
+                        <!-- * profile box -->
+
+                        <ul class="listview flush transparent no-line image-listview mt-2">
+                            <li>
+                                <a href="/Goods_Receipts" class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="cube-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>Goods Receipt</div>
+                                    </div>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="/delivery" class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="paper-plane-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>Delivery Picking</div>
+                                        @*<span class="badge badge-success">5</span>*@
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/foc_delivery" class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="disc-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>FOC Delivery Picking</div>
+                                        @*<span class="badge badge-success">5</span>*@
+                                    </div>
+                                </a>
+                            </li>
+                            @*<li>
+            <a href="#" class="item">
+                <div class="icon-box bg-primary">
+                    <ion-icon name="backspace-outline"></ion-icon>
+                </div>
+                <div class="in">
+                    <div>Quality Rejection</div>
+                </div>
+            </a>
+        </li>*@
+                            <li>
+                                <a href="#" class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="trash-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>Scrap Generation</div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/Sales_Return" class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="refresh-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>Sales Return</div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/ChangePassword" class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="lock-closed-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>Change Password</div>
+                                    </div>
+                                </a>
+                            </li>
+
+                            <li>
+                                <div class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="moon-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>Dark Mode</div>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input dark-mode-switch"
+                                                   id="darkmodesidebar">
+                                            <label class="custom-control-label" for="darkmodesidebar"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="notifications-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>Notifications</div>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input"
+                                                   id="enable-notifications">
+                                            <label class="custom-control-label" for="enable-notifications"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <a href="/Logout" class="item">
+                                    <div class="icon-box bg-primary">
+                                        <ion-icon name="power-outline"></ion-icon>
+                                    </div>
+                                    <div class="in">
+                                        <div>Log Out</div>
+                                    </div>
+                                </a>
+                            </li>
+
+                        </ul>
+
+                        
+                        @*<div class="enable-notifications pt-2 pb-1">
+            <p>
+
+                <button type="button" class="btn btn-success btn-block">
+                    <ion-icon name="paper-plane-outline" role="img" class="md hydrated" aria-label="logo android"></ion-icon>
+                    Enable Notifications
+                </button>
+            </p>
+        </div>*@
+                        @*<div class="listview-title mt-2 mb-1">
+            <span>Friends</span>
+        </div>
+        <ul class="listview image-listview flush transparent no-line">
+            <li>
+                <a href="page-chat.html" class="item">
+                    <img src="images/sample/avatar/avatar7.jpg" alt="image" class="image">
+                    <div class="in">
+                        <div>Sophie Asveld</div>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="page-chat.html" class="item">
+                    <img src="~/images/sample/avatar/avatar3.jpg" alt="image" class="image">
+                    <div class="in">
+                        <div>Sebastian Bennett</div>
+                        <span class="badge badge-danger">6</span>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="page-chat.html" class="item">
+                    <img src="images/sample/avatar/avatar10.jpg" alt="image" class="image">
+                    <div class="in">
+                        <div>Beth Murphy</div>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="page-chat.html" class="item">
+                    <img src="~/images/sample/avatar/avatar2.jpg" alt="image" class="image">
+                    <div class="in">
+                        <div>Amelia Cabal</div>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="page-chat.html" class="item">
+                    <img src="~/images/sample/avatar/avatar5.jpg" alt="image" class="image">
+                    <div class="in">
+                        <div>Henry Doe</div>
+                    </div>
+                </a>
+            </li>
+        </ul>*@
+
+                    </div>
+
+                        <!-- sidebar buttons -->
+                        <div class="sidebar-buttons">
+                            <a href="javascript:;" class="button">
+                                <ion-icon name="person-outline"></ion-icon>
+                            </a>
+                            <a href="javascript:;" class="button">
+                                <ion-icon name="archive-outline"></ion-icon>
+                            </a>
+                            <a href="javascript:;" class="button">
+                                <ion-icon name="settings-outline"></ion-icon>
+                            </a>
+                            <a href="javascript:;" class="button">
+                                <ion-icon name="log-out-outline"></ion-icon>
+                            </a>
+                        </div>
+                        <!-- * sidebar buttons -->
+                    </div>
+            </div>
+        </div>
+        <!-- * App Sidebar -->
+    </div>
+
+
+
+
+    <!-- ///////////// Js Files ////////////////////  -->
+    <!-- Jquery -->
+    <script src="~/js/jquery-3.4.1.min.js"></script>
+
+    <!-- Bootstrap-->
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <!-- Ionicons -->
+
+    <script type="module" src="https://unpkg.com/ionicons@5.0.1/dist/ionicons/ionicons.js"></script>
+    <!-- Owl Carousel -->
+    <script src="~/js/owl.carousel.min.js"></script>
+    <!-- jQuery Circle Progress -->
+    <script src="~/js/circle-progress.min.js"></script>
+
+    <script src="~/js/base.js"></script>
+    <script src="~/js/idb.js"></script>
+    <script src="~/js/utility.js"></script>
+    <script src="~/js/app.js"></script>
+    
+    @RenderSection("Scripts", required: false);
+
+
+<script>
+        
+        var UserName = getCookie("UserName");
+        var Plant = getCookie("Plant");
+  
+    
+
+    if (UserName === '' || Plant === '') {
+        //window.location.href = "./login";
+        window.location = '/login';
+    }
+    else {
+        $('#sUserName').text(UserName);
+        $('#slocation').text(Plant);
+    }
+</script>
+
+
+
+</body>
+    </html>

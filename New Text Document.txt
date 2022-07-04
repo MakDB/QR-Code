@@ -1,0 +1,397 @@
+CREATE TABLE tran_Material_Without_GR
+(
+	Id  UNIQUEIDENTIFIER PRIMARY KEY default NEWID(),
+	Serial_Number varchar(15) NULL,
+	Material_Number varchar(18) NULL,
+	Year varchar(4) NULL,
+	Month varchar(3) NULL,
+	Product_Description varchar(40) NULL,
+	MRP decimal(18, 2) NULL,
+	Machine_ID varchar(5) NULL,
+	Capturing_Date datetime NULL,
+	Document_No varchar(16) NULL,
+	Transaction_Type varchar(4) NULL,
+	GR_Flag varchar(1) NULL,	
+	IsSync varchar(1) Default 'N',
+	Created_By varchar(12) NULL,
+	Creation_Date datetime Default GETDATE()
+	
+) 
+----------------------------------------------------------
+
+
+
+ALTER procedure [dbo].[sp_Insert_Material]
+(
+@Serial_Number varchar(15),
+@Material_Number varchar(18),
+@Vendor_Number varchar(10),
+@Year varchar(4),
+@Month varchar(3),
+@Product_Description varchar(40),
+@MRP decimal(18,2),
+@Machine_ID varchar(5),
+@Capturing_Date datetime,
+@Created_By varchar(12)= 'AUTO',
+@Cancelled varchar(1) = 'N',
+--@Serial_Number varchar(15),
+@Transaction_Type varchar(4),
+@Document_No varchar(10),
+@Line_Item_Number varchar(5),
+@Plant varchar(4),
+@Storage_Location varchar(4),
+@Ref_Doc_No varchar(16),
+@Status varchar(1) = 'N',
+@QA_Status varchar(1) = 'N',
+@Scrap varchar(1) = 'N',
+@Cancellation_Indicator varchar(1) = 'N',
+@GR_Flag varchar(1)
+
+
+)
+
+As
+Begin
+Declare @ErrorMessage varchar(max);
+SET XACT_ABORT ON
+SET NoCount ON
+
+-- exec [sp_Insert_Material] 'PS 20 04 00010','3801951','50003715','2020','04','PRONTO STYLO SS 3V4.5KW','4920','1','2020-08-21 06:46:47','Auto','','','5007217729','20','I3','SPPA','','','','','','N'
+if(@GR_Flag = 'Y')
+BEGIN
+Begin Try  
+ Begin Transaction 
+
+ Insert into mst_Material_Information (Serial_Number,Material_Number,Vendor_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By) Values 
+ (@Serial_Number,@Material_Number,@Vendor_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By)
+
+ Insert into tran_Material_Transaction (Serial_Number,Transaction_Type,Document_No,Line_Item_Number,Plant,Storage_Location,Ref_Doc_No,Status,QA_Status,Scrap,Capturing_Date,Created_By) VALUES 
+ (@Serial_Number,@Transaction_Type,@Document_No,@Line_Item_Number,@Plant,@Storage_Location,@Ref_Doc_No,@Status,@QA_Status,@Scrap,@Capturing_Date,@Created_By)
+
+ UPDATE tran_GR_Information SET IsGRFlag = 'Y', Modified_By =@Created_By,Modification_Date = GETDATE() WHERE GR_Number = @Document_No
+  COMMIT
+ Select @Serial_Number As Serial_Number, '200' As Status_Code, 'Sync Successfully' As Status
+
+ End Try  
+Begin Catch  
+ Rollback Transaction  
+  set @ErrorMessage = (SELECT  ERROR_MESSAGE() AS ErrorMessage)
+  INSERT INTO tran_Error(Serial_Number,Material_Number,Vendor_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By,Transaction_Type,Document_No, Line_Item_Number,Plant,Storage_Location,Status,GR_Flag,Creation_Date) Values
+  (@Serial_Number,@Material_Number,@Vendor_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By,@Transaction_Type,@Document_No, @Line_Item_Number,@Plant,@Storage_Location,@ErrorMessage,@GR_Flag,GETDATE())
+  Select @Serial_Number As Serial_Number, '200' As Status_Code, 'Sync to error' As Status
+
+End Catch  
+End  
+ELSE
+BEGIN
+--INSERT INTO TEMP_GR_SCANNER_DATA(Serial_Number,Material_Number,Vendor_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By,Cancelled,Transaction_Type,Document_No, Line_Item_Number,Plant,Storage_Location,Ref_Doc_No,Status,QA_Status,Scrap,Cancellation_Indicator,GR_Flag) Values
+--(@Serial_Number,@Material_Number,@Vendor_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By,@Cancelled,@Transaction_Type,@Document_No, @Line_Item_Number,@Plant,@Storage_Location,@Ref_Doc_No,@Status,@QA_Status,@Scrap,@Cancellation_Indicator,@GR_Flag)
+
+INSERT INTO tran_Material_Without_GR (Serial_Number,Material_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By,Transaction_Type,Document_No,GR_Flag) Values
+(@Serial_Number,@Material_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By,@Transaction_Type,@Document_No,@GR_Flag)
+ Select @Serial_Number As Serial_Number, '200' As Status_Code, 'Sync Successfully' As Status
+END
+END
+GO
+
+
+-------------------------------------------------------------------------------------
+
+CREATE TRIGGER trg_Sync_with_GR ON
+tran_GR_Information
+After INSERT
+AS
+BEGIN
+DECLARE @GR_Number varchar(10);
+DECLARE @Line_Item_Number varchar(5);
+DECLARE @Material_Number varchar(18);
+DECLARE @Plant varchar(4);
+DECLARE @Storage_Location varchar(4);
+DECLARE @Vendor varchar(10);
+DECLARE @Movement_Type varchar(3);
+DECLARE @Reference_Doc_No varchar(16);
+Declare @Id UNIQUEIDENTIFIER;
+--------------------------------------------
+DECLARE @Serial_Number varchar(15);
+DECLARE @Year varchar(4);
+DECLARE @Month varchar(3);
+DECLARE @Product_Description varchar(40);
+DECLARE @MRP decimal(18, 2);
+DECLARE @Machine_ID varchar(5);
+DECLARE @Capturing_Date datetime;
+DECLARE @Transaction_Type varchar(4);
+DECLARE @Created_By varchar(12);
+---------------------------------------------
+SELECT @GR_Number=i.GR_Number,@Line_Item_Number = i.Line_Item_Number,@Material_Number =i.Material_Number,@Plant =i.Plant,@Storage_Location=i.Storage_Location, 
+@Vendor=i.Vendor,@Movement_Type= i.Movement_Type,@Reference_Doc_No = i.Reference_Doc_No FROM inserted i; 
+ SET NOCOUNT ON;
+ IF @Movement_Type != '651'
+ BEGIN
+	While (SELECT Count(*) FROM tran_Material_Without_GR WHERE Document_No = @Reference_Doc_No and Material_Number = @Material_Number and IsSync = 'N' ) > 0
+	Begin
+    Select Top 1 @Id = Id,@Serial_Number = Serial_Number,@Year = Year,@Month = Month,@Product_Description =Product_Description,@MRP =MRP,
+	@Machine_ID = Machine_ID, @Capturing_Date =Capturing_Date, @Transaction_Type =Transaction_Type, @Created_By = Created_By
+	From tran_Material_Without_GR WHERE Document_No = @Reference_Doc_No and Material_Number = @Material_Number and IsSync = 'N'
+
+    --Do some processing here
+	IF NOT EXISTS(Select 1 from mst_Material_Information WHERE Serial_Number = @Serial_Number)
+	Begin
+	Insert into mst_Material_Information (Serial_Number,Material_Number,Vendor_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By) Values 
+    (@Serial_Number,@Material_Number,@Vendor,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By)
+	
+	Insert into tran_Material_Transaction (Serial_Number,Transaction_Type,Document_No,Line_Item_Number,Plant,Storage_Location,Capturing_Date,Created_By) VALUES 
+	(@Serial_Number,@Transaction_Type,@GR_Number,@Line_Item_Number,@Plant,@Storage_Location,@Capturing_Date,@Created_By)
+
+	 Update tran_Material_Without_GR Set IsSync = 'Y' Where Id = @Id 
+	 End
+	End
+ END
+ 
+END
+
+------------------------------------------
+------------------------------------------
+START
+
+
+
+ALTER FUNCTION [dbo].[Get_Document_Type_Qty] 
+(
+@Document_No  varchar(10),
+@Transaction_Type varchar(4),
+@Material_Number varchar(18),
+@Line_Item_Number varchar(5),
+@Quantity decimal(18,2)
+
+)
+RETURNS decimal(18,2)
+AS
+BEGIN
+DECLARE @Return decimal(18,2);
+--DECLARE @GRQty INT;
+DECLARE @TransactionQty INT;
+--SET @GRQty = (SELECT Quantity FROM tran_GR_Information WHERE GR_Number = @Document_No AND Material_Number = @Material_Number AND Line_Item_Number = @Line_Item_Number)
+--SET @TransactionQty = (SELECT COUNT(tr.Serial_Number)  FROM tran_Material_Transaction tr
+--INNER join mst_Material_Information mst on mst.Serial_Number = tr.Serial_Number 
+--WHERE tr.Transaction_Type =@Transaction_Type AND tr.Document_No = @Document_No AND mst.Material_Number = @Material_Number AND tr.Line_Item_Number = @Line_Item_Number)
+
+SET @TransactionQty = (SELECT COUNT(Serial_Number)  FROM tran_Material_Transaction
+WHERE Transaction_Type =@Transaction_Type AND Document_No = @Document_No AND Material_Number = @Material_Number 
+AND Line_Item_Number = @Line_Item_Number)
+
+
+SET @Return = (SELECT ISNULL(@Quantity,0.00) - ISNULL(@TransactionQty,0.00))
+return @Return
+END
+
+----------------------------------------------------
+
+ALTER Procedure [dbo].[sp_GetGRDetailsByGrNo]
+(
+	@GR_Number varchar(10),
+	@Type varchar(2)
+)
+As
+--EXEC sp_GetGRDetailsByGrNo '5007224676', 'GR' sELECT * FROM [dbo].[tran_GR_Information]
+Begin
+if(@Type = 'GR')
+Begin
+SELECT GR_Number,Line_Item_Number,Material_Number,Plant,Storage_Location,Vendor,PO_Number,
+	dbo.Get_Document_Type_Qty(GR_Number,@Type,Material_Number,Line_Item_Number,Quantity) As Quantity,
+	GR_Date,Document_Date,Reference_Doc_No,Movement_Type,
+	Created_By,Creation_Date,Modified_By,Modification_Date,IsGRFlag FROM tran_GR_Information
+WHERE GR_Number = @GR_Number  and Movement_Type not in ('651')
+End
+Else
+Begin
+SELECT GR_Number,Line_Item_Number,Material_Number,Plant,Storage_Location,Vendor,PO_Number,
+	dbo.Get_Document_Type_Qty(GR_Number,@Type,Material_Number,Line_Item_Number,Quantity) As Quantity,
+	GR_Date,Document_Date,Reference_Doc_No,Movement_Type,
+	Created_By,Creation_Date,Modified_By,Modification_Date,IsGRFlag  FROM tran_GR_Information
+		WHERE GR_Number = @GR_Number and Movement_Type in ('651')
+End
+End 
+
+-------------------------------------------------------------------
+
+
+
+ALTER Procedure [dbo].[sp_GetDeliveryDetailsByDeliveryNo]  
+(  
+ @Delivery_No varchar(10)  
+)  
+As  
+--EXEC sp_GetDeliveryDetailsByDeliveryNo '8002090216'
+Begin  
+SELECT Delivery_Number,Line_Item_Number,Customer_Number,Plant,Shipping_Point,Storage_Location,Material_Number,
+dbo.Get_Document_Type_Qty(Delivery_Number,'DL',Material_Number,Line_Item_Number,Quantity_To_Be_Picked) AS Quantity_To_Be_Picked,
+Sales_Order_Number,Document_Date,Created_By,Creation_Date,Modified_By,Modification_Date FROM tran_Delivery_Information  
+ WHERE Delivery_Number = @Delivery_No  
+End 
+
+------------------------------------------------------------------
+
+
+
+DROP TABLE tran_Material_Transaction
+
+CREATE TABLE [dbo].[tran_Material_Transaction](
+	[Serial_Number] [varchar](15) NOT NULL,
+	[Transaction_Type] [varchar](4) NOT NULL,
+	[Document_No] [varchar](10) NOT NULL,
+	[Line_Item_Number] [varchar](5) NOT NULL,
+	[Material_Number] [varchar](18) NOT NULL,
+	[Plant] [varchar](4) NULL,
+	[Storage_Location] [varchar](4) NULL,
+	[Ref_Doc_No] [varchar](16) NULL,
+	[Status] [varchar](3) NULL,
+	[QA_Status] [varchar](1) NULL,
+	[Scrap] [varchar](1) NULL,
+	[Cancellation_Indicator] [varchar](1) NULL,
+	[Capturing_Date] [datetime] NULL,
+	[Created_By] [varchar](12) NULL,
+	[Creation_Date] [datetime] NULL,
+	[Modified_By] [varchar](12) NULL,
+	[Modification_Date] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Serial_Number] ASC,
+	[Transaction_Type] ASC,
+	[Document_No] ASC,
+	[Line_Item_Number] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[tran_Material_Transaction] ADD  DEFAULT (getdate()) FOR [Creation_Date]
+GO
+
+----------------------------------------------------------------------------------------
+
+
+ALTER procedure [dbo].[sp_Insert_Material]
+(
+@Serial_Number varchar(15),
+@Material_Number varchar(18),
+@Vendor_Number varchar(10),
+@Year varchar(4),
+@Month varchar(3),
+@Product_Description varchar(40),
+@MRP decimal(18,2),
+@Machine_ID varchar(5),
+@Capturing_Date datetime,
+@Created_By varchar(12)= 'AUTO',
+@Cancelled varchar(1) = 'N',
+--@Serial_Number varchar(15),
+@Transaction_Type varchar(4),
+@Document_No varchar(10),
+@Line_Item_Number varchar(5),
+@Plant varchar(4),
+@Storage_Location varchar(4),
+@Ref_Doc_No varchar(16),
+@Status varchar(1) = 'N',
+@QA_Status varchar(1) = 'N',
+@Scrap varchar(1) = 'N',
+@Cancellation_Indicator varchar(1) = 'N',
+@GR_Flag varchar(1)
+
+
+)
+
+As
+Begin
+Declare @ErrorMessage varchar(max);
+SET XACT_ABORT ON
+SET NoCount ON
+
+-- exec [sp_Insert_Material] 'PS 20 04 00010','3801951','50003715','2020','04','PRONTO STYLO SS 3V4.5KW','4920','1','2020-08-21 06:46:47','Auto','','','5007217729','20','I3','SPPA','','','','','','N'
+if(@GR_Flag = 'Y')
+BEGIN
+Begin Try  
+ Begin Transaction 
+
+ Insert into mst_Material_Information (Serial_Number,Material_Number,Vendor_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By) Values 
+ (@Serial_Number,@Material_Number,@Vendor_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By)
+
+ Insert into tran_Material_Transaction (Serial_Number,Transaction_Type,Document_No,Line_Item_Number,Material_Number,Plant,Storage_Location,Ref_Doc_No,Status,QA_Status,Scrap,Capturing_Date,Created_By) VALUES 
+ (@Serial_Number,@Transaction_Type,@Document_No,@Line_Item_Number,@Material_Number,@Plant,@Storage_Location,@Ref_Doc_No,@Status,@QA_Status,@Scrap,@Capturing_Date,@Created_By)
+
+ UPDATE tran_GR_Information SET IsGRFlag = 'Y', Modified_By =@Created_By,Modification_Date = GETDATE() WHERE GR_Number = @Document_No
+  COMMIT
+ Select @Serial_Number As Serial_Number, '200' As Status_Code, 'Sync Successfully' As Status
+
+ End Try  
+Begin Catch  
+ Rollback Transaction  
+  set @ErrorMessage = (SELECT  ERROR_MESSAGE() AS ErrorMessage)
+  INSERT INTO tran_Error(Serial_Number,Material_Number,Vendor_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By,Transaction_Type,Document_No, Line_Item_Number,Plant,Storage_Location,Status,GR_Flag,Creation_Date) Values
+  (@Serial_Number,@Material_Number,@Vendor_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By,@Transaction_Type,@Document_No, @Line_Item_Number,@Plant,@Storage_Location,@ErrorMessage,@GR_Flag,GETDATE())
+  Select @Serial_Number As Serial_Number, '200' As Status_Code, 'Sync to error' As Status
+
+End Catch  
+End  
+ELSE
+BEGIN
+--INSERT INTO TEMP_GR_SCANNER_DATA(Serial_Number,Material_Number,Vendor_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By,Cancelled,Transaction_Type,Document_No, Line_Item_Number,Plant,Storage_Location,Ref_Doc_No,Status,QA_Status,Scrap,Cancellation_Indicator,GR_Flag) Values
+--(@Serial_Number,@Material_Number,@Vendor_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By,@Cancelled,@Transaction_Type,@Document_No, @Line_Item_Number,@Plant,@Storage_Location,@Ref_Doc_No,@Status,@QA_Status,@Scrap,@Cancellation_Indicator,@GR_Flag)
+
+INSERT INTO tran_Material_Without_GR (Serial_Number,Material_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By,Transaction_Type,Document_No,GR_Flag) Values
+(@Serial_Number,@Material_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By,@Transaction_Type,@Document_No,@GR_Flag)
+ Select @Serial_Number As Serial_Number, '200' As Status_Code, 'Sync Successfully' As Status
+END
+END
+
+-------------------------------------------------------------------
+
+
+ALTER procedure [dbo].[sp_Insert_Material_Transaction]
+(
+@Serial_Number varchar(15),
+@Material_Number varchar(18),
+@Vendor_Number varchar(10),
+@Year varchar(4),
+@Month varchar(3),
+@Product_Description varchar(40),
+@MRP decimal(18,2),
+@Machine_ID varchar(5),
+@Capturing_Date datetime,
+@Created_By varchar(12)= 'AUTO',
+@Cancelled varchar(1) = 'N',
+--@Serial_Number varchar(15),
+@Transaction_Type varchar(4),
+@Document_No varchar(10),
+@Line_Item_Number varchar(5),
+@Plant varchar(4),
+@Storage_Location varchar(4),
+@Ref_Doc_No varchar(16),
+@Status varchar(1) = 'N',
+@QA_Status varchar(1) = 'N',
+@Scrap varchar(1) = 'N',
+@Cancellation_Indicator varchar(1) = 'N'
+)
+
+As
+Begin
+Declare @ErrorMessage varchar(max);
+SET XACT_ABORT ON
+SET NoCount ON
+-- exec [sp_Insert_Material] 'PS 20 04 00010','3801951','50003715','2020','04','PRONTO STYLO SS 3V4.5KW','4920','1','2020-08-21 06:46:47','Auto','','','5007217729','20','I3','SPPA','','','','','','N'
+
+Begin Try  
+ Begin Transaction 
+
+ Insert into tran_Material_Transaction (Serial_Number,Transaction_Type,Document_No,Line_Item_Number,Material_Number,Plant,Storage_Location,Ref_Doc_No,Status,QA_Status,Scrap,Capturing_Date,Created_By) VALUES 
+ (@Serial_Number,@Transaction_Type,@Document_No,@Line_Item_Number,@Material_Number,@Plant,@Storage_Location,@Ref_Doc_No,@Status,@QA_Status,@Scrap,@Capturing_Date,@Created_By)
+  COMMIT
+ Select @Serial_Number As Serial_Number, '200' As Status_Code, 'Sync Successfully' As Status
+
+ End Try  
+Begin Catch  
+ Rollback Transaction  
+  set @ErrorMessage = (SELECT  ERROR_MESSAGE() AS ErrorMessage)
+  INSERT INTO tran_Error(Serial_Number,Material_Number,Vendor_Number,Year,Month,Product_Description,MRP,Machine_ID,Capturing_Date,Created_By,Transaction_Type,Document_No, Line_Item_Number,Plant,Storage_Location,Status,Creation_Date) Values
+  (@Serial_Number,@Material_Number,@Vendor_Number,@Year,@Month,@Product_Description,@MRP,@Machine_ID,@Capturing_Date,@Created_By,@Transaction_Type,@Document_No, @Line_Item_Number,@Plant,@Storage_Location,@ErrorMessage,GETDATE())
+  Select @Serial_Number As Serial_Number, '200' As Status_Code, 'Sync to error' As Status
+End Catch  
+End  

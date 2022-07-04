@@ -1,0 +1,194 @@
+﻿@page
+@model QR_Material_Scanner.Pages.LoginModel
+@{
+}
+
+
+<!doctype html>
+<html lang="en">
+
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Ariston Thermo | QR Scanner App</title>
+    <meta name="description" content="Qr Material Scanner PWA">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Disable tap highlight on IE -->
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <!-- Progressive Web App -->
+    <meta name="theme-color" content="#f5f8fa">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="~/images/icons/icon-192x192.png">
+    <link rel="icon" sizes="512x512" href="~/images/icons/icon-512x512.png">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="ATIPL">
+    <link rel="apple-touch-icon-precomposed" href="~/images/icons/icon-192x192.png">
+    @*<link rel="mask-icon" href="images/icons/desktop/safari-pinned-tab.svg" color="#5bbad5">*@
+
+    <!-- Tile color for Windows -->
+    <meta name="msapplication-TileImage" content="~/images/icons/icon-152x152.png">
+    <meta name="msapplication-TileColor" content="#ffc40d">
+
+    <!-- Place favicon.ico in the root directory -->
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/icons/icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/icons/desktop/favicon-16x16.png">
+
+    <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+    <!--
+    <link rel="canonical" href="http://www.example.com/">
+    -->
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="manifest" href="~/manifest.json">
+   
+</head>
+
+<body class="bg-white">
+
+    <!-- loader -->
+    <div id="loader">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <!-- * loader -->
+    <!-- App Capsule -->
+
+    <div id="appCapsule" class="pt-0">
+
+        <div class="login-form mt-1">
+            <div class="section">
+                <img src="~/images/sample/photo/vector4.png" alt="image" class="form-image">
+            </div>
+            <div class="section mt-1">
+                <h1>Get started</h1>
+                <h4>Fill the form to log in</h4>
+
+            </div>
+            <div class="section mt-1 mb-5">
+
+
+
+                <form method="post">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="form-group boxed">
+                        <div class="input-wrapper">
+
+                            @Html.TextBoxFor(m => m.Input.UserName, new { @class = "form-control", @placeholder = "User Name" })
+                            @Html.ValidationMessageFor(m => m.Input.UserName, "", new { @class = "text-danger" })
+                            @*<input type="text" asp-for="Input.UserName" class="form-control" placeholder="Email address">*@
+
+                            <i class="clear-input">
+                                <ion-icon name="close-circle"></ion-icon>
+                            </i>
+                        </div>
+                    </div>
+
+                    <div class="form-group boxed">
+                        <div class="input-wrapper">
+
+                            @Html.PasswordFor(m => m.Input.Password, new { @class = "form-control", @placeholder = "Password" })
+                            @Html.ValidationMessageFor(m => m.Input.Password, "", new { @class = "text-danger" })
+                            @*<input type="password" asp-for="Input.Password" class="form-control" placeholder="Password">*@
+
+                            @*<input type="password" class="form-control" id="password1" placeholder="Password">*@
+                            <i class="clear-input">
+                                <ion-icon name="close-circle"></ion-icon>
+                            </i>
+                        </div>
+                    </div>
+                    <div class="custom-control custom-checkbox d-inline">
+
+                        @Html.CheckBoxFor(m => m.Input.RememberMe, new { @class = "custom-control-input", @id = "chkremember" })
+                        <label class="custom-control-label" for="chkremember">Remember Me</label>
+
+                    </div>
+                    @*<div class="form-group boxed">
+                            <div class="custom-checkbox">
+                                <label asp-for="RememberMe">
+                                    @Html.CheckBoxFor(m => m.Input.RememberMe, new { @class = "custom-control-input" })
+                                    @Html.DisplayNameFor(m => m.Input.RememberMe)
+                                </label>
+                            </div>
+                        </div>*@
+
+                    <div class="form-links mt-2">
+                        @*<div>
+                                <a href="page-register.html">Register Now</a>
+                            </div>*@
+                        <div><a href="./ForgotPassword" class="text-muted">Forgot Password?</a></div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">Log in</button>
+                    </div>
+                    <div class="footer-title">
+                        <label class="text-danger" id="spanVersion"></label>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- * App Capsule -->
+    <!-- Jquery -->
+    <script src="~/js/jquery-3.4.1.min.js"></script>
+    <!-- Bootstrap-->
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons%405.0.0/dist/ionicons/ionicons.js"></script>
+    <!-- Owl Carousel -->
+    <script src="~/js/owl.carousel.min.js"></script>
+    <!-- jQuery Circle Progress -->
+    <script src="~/js/circle-progress.min.js"></script>
+    <script src="~/js/base.js"></script>
+   
+    <script>
+      
+        var spanVersion = document.querySelector('#spanVersion');
+        spanVersion.innerHTML = version;
+        alert(version);
+        alert(spanVersion.innerHTML);
+        var UserName = getCookie("UserName");
+        var Plant = getCookie("Plant");
+
+        if (UserName !== '' || Plant !== '') {
+            //window.location.href = "./home";
+            window.location = '/home';
+        }
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    //return c.substring(name.length, c.length);
+                    return atob(decodeURIComponent(c.substring(name.length, c.length)));
+                }
+            }
+            return "";
+        }
+    </script>
+
+</body>
+
+
+</html>

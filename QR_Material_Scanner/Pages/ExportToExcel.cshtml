@@ -1,0 +1,75 @@
+﻿@page "/ExportToExcel"
+@model QR_Material_Scanner.Pages.ExportToExcelModel
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<!-- App Header -->
+<div class="appHeader bg-primary text-light">
+    <div class="left">
+        <a href="javascript:;" class="headerButton goBack">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+        </a>
+    </div>
+    <div class="pageTitle">Delivery Picking</div>
+    <div class="right">
+    </div>
+</div>
+<!-- * App Header -->
+<!-- App Capsule -->
+<div id="appCapsule">
+
+    <div class="fab-button animate top-right">
+        @*<a href="#" class="fab" data-toggle="modal" data-target="#actionSheetForm">*@
+        <a href="#" class="fab" id="open-model-button">
+            <ion-icon name="add-outline"></ion-icon>
+        </a>
+    </div>
+    @*<div class="section full mt-2">
+            <div class="section-title">Form Action Sheet</div>
+            <div class="wide-block pt-2 pb-2">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#actionSheetForm">Show</button>
+            </div>
+        </div>*@
+
+
+    <div class="section full mt-2 mb-2">
+        <div class="section-title">Export To Excel</div>
+        <div class="wide-block pt-2 pb-2">
+
+            <form class="needs-validation" novalidate>
+                <div class="form-group boxed">
+                    <div class="input-wrapper">
+                        <label class="label" for="Business_Name">From Date </label>
+                        @* @Html.TextBoxFor(m => m.Input.FromDate, new { @class = "form-control", @placeholder = "From Date", autocomplete = "off" })*@
+                        @Html.EditorFor(m => m.Input.FromDate, new { @type = "date", @class = "form-control", @placeholder = "To Date", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Input.FromDate, "", new { @class = "text-danger" })
+
+                        <i class="clear-input">
+                            <ion-icon name="close-circle"></ion-icon>
+                        </i>
+                    </div>
+                </div>
+                <div class="form-group boxed">
+                    <div class="input-wrapper">
+                        <label class="label" for="Business_Name">To Date </label>
+                        @Html.EditorFor(m => m.Input.ToDate, new { @type = "date", @class = "form-control", @placeholder = "To Date", autocomplete = "off" })
+                        @*@Html.TextBoxFor(m => m.Input.ToDate, new { @class = "form-control", @placeholder = "To Date", autocomplete = "off" })*@
+                        @Html.ValidationMessageFor(m => m.Input.ToDate, "", new { @class = "text-danger" })
+
+                        <i class="clear-input">
+                            <ion-icon name="close-circle"></ion-icon>
+                        </i>
+                    </div>
+                    </div>
+                    <div class="mt-5">
+                        <button class="btn btn-primary btn-block" id="btnSubmit" type="submit">Submit</button>
+                    </div>
+
+            </form>
+
+
+        </div>
+    </div>
+</div>
+<!-- * App Capsule -->

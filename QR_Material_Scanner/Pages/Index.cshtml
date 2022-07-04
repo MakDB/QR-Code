@@ -1,0 +1,238 @@
+﻿@page "/home"
+@model QR_Material_Scanner.Pages.IndexModel
+@{
+
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+
+<div class="appHeader bg-primary scrolled">
+    <div class="left">
+        <a href="#" class="headerButton" data-toggle="modal" data-target="#sidebarPanel">
+            <ion-icon name="menu-outline"></ion-icon>
+        </a>
+    </div>
+    <div class="pageTitle">
+        ARISTON
+    </div>
+    <div class="right">
+        <a href="javascript:;" class="headerButton toggle-searchbox">
+            <ion-icon name="search-outline"></ion-icon>
+        </a>
+    </div>
+</div>
+<!-- * App Header -->
+<!-- Search Component -->
+<div id="search" class="appHeader">
+    <form class="search-form">
+        <div class="form-group searchbox">
+            <input type="text" class="form-control" placeholder="Search...">
+            <i class="input-icon">
+                <ion-icon name="search-outline"></ion-icon>
+            </i>
+            <a href="javascript:;" class="ml-1 close toggle-searchbox">
+                <ion-icon name="close-circle"></ion-icon>
+            </a>
+        </div>
+    </form>
+</div>
+<!-- * Search Component -->
+<!-- App Capsule -->
+<div id="appCapsule">
+
+    <div class="header-large-title">
+        <h1 class="title">Home</h1>
+        <h4 class="subtitle">Welcome to Ariston Thermo App</h4>
+    </div>
+
+    <div class="section full mt-3 mb-3">
+        <div class="carousel-multiple owl-carousel owl-theme">
+
+            <div class="item">
+                <div class="card">
+                    <a href="/Goods_Receipts">
+                        <img src="images/sample/photo/goods_receipt.jpg" class="card-img-top" alt="image">
+                        <div class="card-body pt-2">
+                            <h4 class="mb-0">Goods Receipt</h4>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="item">
+                <div class="card">
+                    <a href="/delivery">
+                        <img src="images/sample/photo/delivery_picking.jpg" class="card-img-top" alt="image">
+                        <div class="card-body pt-2">
+                            <h4 class="mb-0">Delivery Picking</h4>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="item">
+                <div class="card">
+                    <a href="/foc_delivery">
+                        <img src="images/sample/photo/foc_delivery.jpg" class="card-img-top" alt="image">
+                        <div class="card-body pt-2">
+                            <h4 class="mb-0">FOC Delivery Picking</h4>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            @*<div class="item">
+            <div class="card">
+                <a href="#">
+                    <img src="images/sample/photo/quality_rejection.jpg" class="card-img-top" alt="image">
+                    <div class="card-body pt-2">
+                        <h4 class="mb-0">Quality Rejection</h4>
+                    </div>
+                </a>
+            </div>
+        </div>*@
+            <div class="item">
+                <div class="card">
+                    <a href="#">
+                        <img src="images/sample/photo/scrap_return.jpg" class="card-img-top" alt="image">
+                        <div class="card-body pt-2">
+                            <h4 class="mb-0">Scrap Generation</h4>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="item">
+                <div class="card">
+                    <a href="/Sales_Return">
+                        <img src="images/sample/photo/sales_return.jpg" class="card-img-top" alt="image">
+                        <div class="card-body pt-2">
+                            <h4 class="mb-0">Sales Return</h4>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            @*<div class="item">
+            <div class="card">
+                <a href="#">
+                    <img src="images/sample/photo/physical_inventory.jpg" class="card-img-top" alt="image">
+                    <div class="card-body pt-2">
+                        <h4 class="mb-0">Physical Inventory</h4>
+                    </div>
+                </a>
+            </div>
+        </div>*@
+
+        </div>
+
+    </div>
+
+
+    <div class="section mt-3 mb-3">
+        <div class="card">
+            <div class="card-body d-flex justify-content-between align-items-end">
+                <div class="row">
+                    <div class="col-4">
+                        <div id="circle1" class="circle-progress">
+                            <div class="in">
+                                <div class="text">
+                                    <h3 class="value" id="grpending"></h3>
+                                    GR Pending
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div id="circle2" class="circle-progress">
+                            <div class="in">
+                                <div class="text">
+                                    <h3 class="value" id="dlpending"></h3>
+                                    DL Pending
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div id="circle3" class="circle-progress">
+                            <div class="in">
+                                <div class="text">
+                                    <h3 class="value" id="syncpending"></h3>
+                                    Waiting for Sync
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- Content Action Sheet -->
+    <div class="modal fade action-sheet" id="actionSheetContent" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                </div>
+                <div class="modal-body">
+                    <div class="action-sheet-content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Document No</th>
+                                        <th scope="col">Material</th>
+                                        <th scope="col">Qty</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboardtbody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="notfound"></div>
+                        <a href="#" class="btn btn-secondary btn-block btn-lg" data-dismiss="modal">Close</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- * Content Action Sheet -->
+
+
+</div>
+<!-- * App Capsule -->
+
+@section Scripts
+{
+    <script src="~/js/home.js"></script>
+    <script>
+        $('#circle1').circleProgress({
+            value: 0.75,
+            size: 500, // do not delete this
+            fill: {
+                gradient: ["#1E74FD", "#592BCA"]
+            },
+            animation: {
+                duration: 2000
+            }
+        });
+        $('#circle2').circleProgress({
+            value: 0.25,
+            size: 500, // do not delete this
+            fill: {
+                gradient: ["#EC4433", "#FE9500"]
+            },
+            animation: {
+                duration: 2000
+            }
+        });
+        $('#circle3').circleProgress({
+            value: 0.55,
+            size: 500, // do not delete this
+            fill: {
+                gradient: ["#00CDFF", "#1E74FD"]
+            },
+            animation: {
+                duration: 2000
+            }
+        });</script>
+}

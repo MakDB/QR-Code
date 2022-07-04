@@ -1,0 +1,124 @@
+﻿@page
+@model QR_Material_Scanner.Pages.OfflineModel
+@{
+    Layout = null;
+}
+
+<!doctype html>
+<html lang="en">
+
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Ariston Thermo | QR Scanner App</title>
+    <meta name="description" content="Qr Material Scanner PWA">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Disable tap highlight on IE -->
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <!-- Progressive Web App -->
+    <meta name="theme-color" content="#f5f8fa">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="~/images/icons/icon-192x192.png">
+    <link rel="icon" sizes="512x512" href="~/images/icons/icon-512x512.png">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="ATIPL">
+    <link rel="apple-touch-icon-precomposed" href="~/images/icons/icon-192x192.png">
+    @*<link rel="mask-icon" href="images/icons/desktop/safari-pinned-tab.svg" color="#5bbad5">*@
+
+    <!-- Tile color for Windows -->
+    <meta name="msapplication-TileImage" content="~/images/icons/icon-152x152.png">
+    <meta name="msapplication-TileColor" content="#ffc40d">
+
+    <!-- Place favicon.ico in the root directory -->
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/icons/icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/icons/desktop/favicon-16x16.png">
+
+    <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+    <!--
+    <link rel="canonical" href="http://www.example.com/">
+    -->
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="manifest" href="~/manifest.json">
+
+</head>
+
+<body class="bg-white">
+
+    <!-- loader -->
+    <div id="loader">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <!-- * loader -->
+    <!-- App Header -->
+    <div class="appHeader no-border transparent position-absolute">
+        <div class="left">
+            <a href="javascript:;" class="headerButton goBack">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+            </a>
+        </div>
+        <div class="pageTitle">Error Page</div>
+        <div class="right">
+            <a href="app-components.html" class="headerButton">
+                Done
+            </a>
+        </div>
+    </div>
+    <!-- * App Header -->
+    <!-- App Capsule -->
+    <div id="appCapsule">
+
+        <div class="error-page">
+            <div class="icon-box text-danger">
+                <ion-icon name="alert-circle"></ion-icon>
+            </div>
+            <h1 class="title">Error</h1>
+            <div class="text mb-5">
+                We're sorry, this page hasn't been cached yet
+                <div></div>
+                <span class="iconedbox iconedbox-xl">
+                    <ion-icon name="sad-outline"></ion-icon>
+                </span>
+            </div>
+            
+            <div class="fixed-footer">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="javascript:;" class="btn btn-secondary btn-lg btn-block goBack">Go Back</a>
+                    </div>
+                    <div class="col-6">
+                        <a href="/home" class="btn btn-primary btn-lg btn-block">Try Again</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- * App Capsule -->
+    <!-- * App Capsule -->
+    <!-- Jquery -->
+    <script src="~/js/jquery-3.4.1.min.js"></script>
+    <!-- Bootstrap-->
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons%405.0.0/dist/ionicons/ionicons.js"></script>
+    <!-- Owl Carousel -->
+    <script src="~/js/owl.carousel.min.js"></script>
+    <!-- jQuery Circle Progress -->
+    <script src="~/js/circle-progress.min.js"></script>
+    <script src="~/js/base.js"></script>
+</body>
+
+</html>
